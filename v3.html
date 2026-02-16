@@ -1,0 +1,414 @@
+
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reprodutor</title>
+    <meta name="robots" content="noindex">
+    <!-- Clappr e plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/@clappr/player@0.4.0/dist/clappr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clappr-pip@latest/dist/clappr-pip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/clappr/clappr-level-selector-plugin@latest/dist/level-selector.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.14.10/dist/shaka-player.ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/clappr/dash-shaka-playback@latest/dist/dash-shaka-playback.external.min.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script>
+        // Lista de canales
+        const canais = {
+            canal5: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/dash-sd/enc/ffwkol9rr3/out/v1/c5f712f414b64736ba9cb11e9d3cd554/cenc-sd.mpd",
+                clearkey: {
+                    'c630b9d02c9eee970976e33e9d98ca16':'6517788f3f04875bc83f34710b1d87e4'
+                }
+            },
+            Canal9mx: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/dash-sd/enc/pz4dlw4rjn/out/v1/2c1c080f26834fc9b7a6c2459f92e031/cenc-sd.mpd",
+                clearkey: {
+                    'eb3707eac345108dc497b896567ac39c':'79885a869e49426149b117afe8a1b887'
+                }
+            },
+            fubosports: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/pdx-nitro/live/clients/dash/enc/3b7qwiqzk3/out/v1/9f14895badca43e6a716db021dcd0c31/cenc.mpd",
+                clearkey: {
+                    'dc69b6159a0f9f0a4e03b3ff91cbacd5':'d0dcbcd7723bc40df0bf34c9c092d51f'
+                }
+            },
+            sportdigital: {
+                url: "//ottb.live.cf.ww.aiv-cdn.net/fra-nitro/live/clients/dash/enc/ssdefyhkkr/out/v1/cf01290cb7f64525bdf861580a016ca8/cenc.mpd",
+                clearkey: {
+                    '0ad4080cdff8c60b1233b22087f0b340':'285f129c5eca01dd08a5d5a14ad801c8'
+                }
+            },
+            laligatv: {
+                url: "//otte.live.cf.ww.aiv-cdn.net/pdx-nitro/live/clients/dash/enc/k0duzgfejg/out/v1/70a50b1bda944628b8e7e66ab4069419/cenc.mpd",
+                clearkey: {
+                    '620e51b82596475517a27aa425c52280':'2b9ba811e9c5aeafc8ae1b71cdca4d6a'
+                }
+            },
+            ps1: {
+                url: "//otte.live.cf.ww.aiv-cdn.net/fra-nitro/live/dash/enc/vwq77hfgzw/out/v1/b858e0b845c64cec953887bd4269e4ea/cenc.mpd",
+                clearkey: {
+                    '1444f4235529f183f0a5a486befe9cdb':'e5e3fec67a1bb3472a2089c8a0a2557f'
+                }
+            },
+            ps2: {
+                url: "//otte.live.cf.ww.aiv-cdn.net/fra-nitro/live/dash/enc/w34nznx0bz/out/v1/1c6639b9af994c75847def2249302066/cenc.mpd",
+                clearkey: {
+                    '1a5df53609ebc9857898c490f4724918':'77f62980d582ec541280796acf8b2d19'
+                }
+            },
+            bs2: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/syd-nitro/live/clients/dash/enc/8m8cd46i1t/out/v1/83985c68e4174e90a58a1f2c024be4c9/cenc.mpd",
+                clearkey: {
+                    '0b42be2664d7e811d04f3e504e0924c5':'ae24090123b8c72ac5404dc152847cb8'
+                }
+            },
+            aztecauno: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/dsdqojpjj3/out/v1/51dceb8ee35b4f25b1dd88860937d08e/cenc-sd.mpd",
+                clearkey: {
+                    '9d26b8806a230aedca4a03072aa38508':'36b07a92bbfaa8580ad031f05352f2e3'
+                }
+            },
+            azcinema: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/nu8ejtgtm2/out/v1/e1cd165fdbd64f53a845447d6ea7f993/cenc-sd.mpd",
+                clearkey: {
+                    'bfdf6a9cdd5d702753de59b79627848d':'082e524a6a7b2d7139c7639caa0123f0'
+                }
+            },
+            telehit: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/zkhwb6scra/out/v1/00613d189ba041bda7b0b73ed4ea3b66/cenc-sd.mpd",
+                clearkey: {
+                    'e2ff5f7ac05c0bb9b7a44491b1602f43':'2d0cd5668e8e1698d8a5aaacda2a337a'
+                }
+            },
+            telehitmusica: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/jljlf0vz3r/out/v1/326e2ac9ca874738b45909d3424ee7d8/cenc-sd.mpd",
+                clearkey: {
+                    '1d59facc4ae743450fc6dbf03808064c':'6e82dd27846bcf0addfab73b85ad86e2'
+                }
+            },
+            unicable: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/39koeufifb/out/v1/01636fc199594512a2a15edbe0844c6f/cenc-sd.mpd",
+                clearkey: {
+                    '671592786df6ca7e7a1334b55a6c2758':'352e85a7b1cdbbdacd9fbf28137f6563'
+                }
+            },
+            distritocomedia: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/0sejrj1ipd/out/v1/f87c139bde754f44ab36e193d1430e86/cenc-sd.mpd",
+                clearkey: {
+                    'ecf73546bb0a453afd0c4740185fe130':'b415fc03bcc5e21e43d803f9fb440c0b'
+                }
+            },
+            tudnmx: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/1a5vdd4i8j/out/v1/db14823b937045ac8b2b0effbcdded45/cenc-sd.mpd",
+                clearkey: {
+                    '5f096c1f9e243b31ddc3bf4f5d88fc5f':'27334536d6077737b321c64663ebf59d'
+                }
+            },
+            foxdeportes: {
+                url: "//ottb.live.cf.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/vkpoljjpkj/out/v1/502bcf68b3514cd28a220e6f0a43816f/cenc.mpd",
+                clearkey: {
+                    'd1a163914db8ffad2c3e94f979896a0d':'9728800a3959aafdd5b0bcfbf3768811'
+                }
+            },
+            fox1mx: {
+                url: "//ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/oboxe53wyo/out/v1/f7892a9d706d419a846d738fa22ea33e/cenc.mpd",
+                clearkey: {
+                    '2fbdaa3bea0d0323ae011b318d1db716':'8726ef7eaf5b9dce15fb6aa9f80bd53f',
+                }
+            },
+            fox2mx: {
+                url: "//ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/tepjqej1ys/out/v1/c9c9159baee749a19612b1598495859a/cenc.mpd",
+                clearkey: {
+                    '8836fb04d62dc64c9f8a39ef8640d5eb':'d4f05ce56c5231b7cdf53455bea58621',
+                }
+            },
+            fox3mx: {
+                url: "//ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/wybgz0orr8/out/v1/2f6d1612abd44f5883917f8a585b955f/cenc.mpd",
+                clearkey: {
+                    '11c8c1c2ef0385cf1e64d44bb9c3a395':'5769730ffbdc4b2fd8945929d9ace063',
+                }
+            },
+            foxpremiumx: {
+                url: "//ottb.live.cf.ww.aiv-cdn.net/iad-nitro/live/clients/dash/enc/fdx74zqzhu/out/v1/7d7a8c6981a842b98a683e9fbfe51d17/cenc.mpd",
+                clearkey: {
+                    '9f327d24c66fbd84e15ab5c9ead7c7a4':'83837185529c0c4048f81386c2d36426',
+                }
+            },
+            telefe: {
+                url: "//cdnlb.gigared.com.ar/live/eds/Telefe_Santa_Fe/sa_live_dash/Telefe_Santa_Fe.mpd",
+                clearkey: {
+                    'a01eedf6b870a091a049a95ba6f85b15':'9f161558348513e5f3ed3a3a3ea2867d',
+                }
+            },
+            telefear: {
+                url: "//cdnlb.gigared.com.ar/live/eds/Telefe/sa_live_dash/Telefe.mpd",
+                clearkey: {
+                    '865b35fdb4c119f3ccfd4ee392928aef':'b43adf6d88b3befbf7f69a71dc273e46',
+                }
+            },
+            tmplus: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/tbynhkao4z/out/v1/d184cde5592341b3be503c04db3fcb56/cenc-sd.mpd",
+                clearkey: {
+                    'b7a1c706285f1078b1344309158cd6a1':'4c8f0fcb652fde516041e02d099af299'
+                }
+            },
+            ucinema: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/byvanrruxe/out/v1/33a96ef35b0b42789bb6ebd104900bae/cenc-sd.mpd",
+                clearkey: {
+                    '62c4befbcf6779ca84bc9d86ef5dce78':'a460b8f668709993a8dd76fbcce360be'
+                }
+            },
+            ucomedy: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/7997jjtvoa/out/v1/29bcd1f10f2b491cbc91cb1b624a655e/cenc-sd.mpd",
+                clearkey: {
+                    '1c8b46ea8e6390267c1d16c588a4c4c0':'5272e03689b890b677f42dc1ead8794b'
+                }
+            },
+            ucrime: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/goiznoiicv/out/v1/b76595a406d24861b49b6871786d4661/cenc-sd.mpd",
+                clearkey: {
+                    '04a58d27b7bfaf4763362edf05da265e':'b6421cee1c6224913783e474079e7a72'
+                }
+            },
+            ureality: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/pedfya71dz/out/v1/38ed60f9665245ab9182a5b34b41f769/cenc-sd.mpd",
+                clearkey: {
+                    '578cb3e21bd530e72decf4546aab7abb':'cab3146dc7ef25ef60412a6c7f05f575'
+                }
+            },
+            upremiere: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/dash-sd/enc/xerdmaskki/out/v1/787fdc37902c41eda2fb8a3098dbd50d/cenc-sd.mpd",
+                clearkey: {
+                    '79368a1a8de04576303bd1750e43ab63':'ff356a80dd60bac9dba49e141160fd03'
+                }
+            },
+            hbopop: {
+                url: "//zap-live1-ott.izzigo.tv/5/out/u/dash/HBO-POP-HD/default.mpd",
+                clearkey: {
+                    'bcf36f412fa3d735cea04f7443fbf77c':'6ff29fb2d6b7d825eb06004650a0a4ea'
+                }
+            },
+            hbomundi: {
+                url: "//zap-live1-ott.izzigo.tv/5/out/u/dash/HBO-MUNDI-HD/default.mpd",
+                clearkey: {
+                    'ba4052ca5eb6f8ff6b98d47d098b2dec':'bb3e4bfa1821d2bdc25c9a0970e4e3b8'
+                }
+            },
+            tntmx: {
+                url: "//zap-live1-ott.izzigo.tv/12/out/u/dash/TNT-HD/default.mpd",
+                clearkey: {
+                    'e793aa9cf5207b02f58f88728c859562':'e2dfc8d60401864aab674f472617bfdf'
+                }
+            },
+            tntseries: {
+                url: "//nog-live1-ott.izzigo.tv/1/out/u/dash/TNT-SERIES-HD/default.mpd",
+                clearkey: {
+                    '8c7c3c7a05812a5245d64c0eced08a41':'e56c4dedfa6c51f617cc7c9d2d61f7a8'
+                }
+            },
+            tntnovelas: {
+                url: "//zap-live1-ott.izzigo.tv/11/out/u/dash/TNT-NOVELAS-HD/default.mpd",
+                clearkey: {
+                    'b3f9a0375499c62b6f5ff778dc46bb43':'c0d7bd6d44c2bd79e46e8dc22e53cceb'
+                }
+            },
+            mtv00s: {
+                url: "//zap-live1-ott.izzigo.tv/3/out/u/dash/MTV00HD/default.mpd",
+                clearkey: {
+                    '53a3776a034dbe5f483d0f3a46f5fddf':'db9d0d03592fbe9f4429ef1a82eb47aa'
+                }
+            },
+            mtvhits: {
+                url: "//zap-live1-ott.izzigo.tv/4/out/u/dash/MTVHITSSD/default.mpd",
+                clearkey: {
+                    '0b5868bc161634a033a19a20f3f3595d':'b336c8c6bb249b1a5f89dace8d9889e5'
+                }
+            },
+            mtvlive: {
+                url: "//zap-live1-ott.izzigo.tv/4/out/u/dash/MTVLIVEHD/default.mpd",
+                clearkey: {
+                    'acc4581a25ef0cd76f8fd7d826bb2d06':'bc006e72e9aab57aca8ae75a83e8f20e'
+                }
+            },
+            golden: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/taxkqu28zg/out/v1/e3e2a1b75df5401783b27939805d33c2/cenc-sd.mpd",
+                clearkey: {
+                    'b56db6f8bf583df8f6b9d0bb4cd63a7b':'501c5afa5a6ca014ee798c7713454715',
+                }
+            },
+            bitme: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/jnn66otuvo/out/v1/c35e1d95879d4de5a3b8ead30830ecaf/cenc-sd.mpd",
+                clearkey: {
+                    'd1ee410be96d200301ca31230e217fa3':'4362b9affc67462f28da0b7927f63dfc',
+                }
+            },
+            tlnovelas: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/arvbyvomao/out/v1/c9c515dc66fd451da12c9a3a6b07de8f/cenc-sd.mpd",
+                clearkey: {
+                    'ad3902dc7b7cb3370df1f6ae130f6e3c':'366439bd6f23eab61fd2a83dfae892f1',
+                }
+            },
+            theater: {
+                url: "//zap-live1-ott.izzigo.tv/12/out/u/dash/DISCOVERY-THEATER-HD/default.mpd",
+                clearkey: {
+                    'f6fa84513dfc29251a24917125905d8b':'54124304e26cb27f4d0f51b126829e30',
+                }
+            },
+            world: {
+                url: "//zap-live1-ott.izzigo.tv/12/out/u/dash/DISCOVERY-WORLD-HD/default.mpd",
+                clearkey: {
+                    'ff9f289f4bad2b970deb5b9d56acb84a':'8f920a61965245ffac8bb0c698845ff5',
+                }
+            },
+            la1spain: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/62qdkefv9f/out/v1/f7d5b356e048494a8325563e8916d50b/cenc.mpd",
+                clearkey: {
+                    'fd86dde0ae3e14ff51c8fc8f248a50db':'d106ae78b0893da2e4393ece99420baa',
+                }
+            },
+            la2spain: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/lhr-nitro/live/clients/dash/enc/arv0kf9ndp/out/v1/aa299e8d19994d78b35977495064e64c/cenc.mpd",
+                clearkey: {
+                    '92eb4fb693ddc7b72909828ad62cdff5':'0b6f7e58c4566ca418447332b228d488',
+                }
+            },
+            mtv80s: {
+                url: "//nog-live1-ott.izzigo.tv/4/out/u/dash/MTV80SSD/default.mpd",
+                clearkey: {
+                    'b515c27589fda8f9607e7949697de6b3':'27d2061c0972931e18d43fbb3301c6f0',
+                }
+            },
+            mtvhits: {
+                url: "//zap-live1-ott.izzigo.tv/11/out/u/dash/SKY-ONE-HD/default.mpd",
+                clearkey: {
+                    '96f177548046a9f56bbb39a900a82ddd':'96aa836072fd84c9a8e6219652330272',
+                }
+            },
+            planet: {
+                url: "//cdnlb.gigared.com.ar/live/eds/Animal_Planet/sa_live_dash/Animal_Planet.mpd",
+                clearkey: {
+                    '5eded9e86a760b6e23d1ce1d80b85484':'74e74a9ea3933219454c81f28ade93a8',
+                }
+            },
+            multipremier: {
+                url: "//dish.akamaized.net/Content/DASH/Live/channel(526dd1aa-3af4-bca0-f021-f48180f1974a)/manifest.mpd",
+                clearkey: {
+                    '55122e37d92b6b4ab03c427cd4f471b9':'0c2d5950edcafe9a2ea09098a155bdda',
+                }
+            },
+            usanetwork: {
+                url: "//dish.akamaized.net/Content/DASH/Live/channel(usamexico)/variant.mpd",
+                clearkey: {
+                    '39773b0d7b389430776142a2fa613ad9':'bce74121a4884ec7d2ed9dd96442a775',
+                }
+            },
+            lifetime: {
+                url: "//cdn-live.mundogo.cl/lifetime/lifetime.mpd",
+                clearkey: {
+                    '646b84253bd050b3bd5d193c686637bf':'f9d532e6ebceab3e689c67aad0098028',
+                    'ada14f837e8553e7b98ab63d5580e48a':'6728c7765ad8f9c00dd4273900832ec0',
+                    '1fc7c635c5fd543d91af58721ff6f16c':'27f6ab010d4f5963ab3518f727f9d64d'
+                }
+            },
+            eltreceinternacional: {
+                url: "//cdn-live.mundogo.cl/treceinternacional/treceinternacional.mpd",
+                clearkey: {
+                    'c3a2d2b268b157549db84f7d920911e2':'13e7310fa219b0293d66312f0350b678',
+                    'b513f1b63fce5e5c97676478a047dd8a':'56518c00d585f37a20875252e6c0265f',
+                    '26cdf8b4bbd75faab18ff19e40ec85ad':'95a67ba33f29bf679cf4be9a2e2ef7de'
+                }
+            },
+            dhe: {
+                url: "//cdn-live.mundogo.cl/dhe/dhe.mpd",
+                clearkey: {
+                    'e1b134aced13524d9a7217908197f8e0':'142844cc2d29cc8009e50aa3a4c2f7dc',
+                    '9560d0e67e32538a9b4cf33d12e5d296':'a5a693ddf151bfa985133805b35524db',
+                    '7064f572c43c5d21bd4b0973dac4443c':'ef2d6b57e5c11a160fdd4d1de1d046d2'
+                }
+            },
+            tntcl: {
+                url: "//cdn-live.mundogo.cl/tnthd/tnthd.mpd",
+                clearkey: {
+                    'e4777f99473555348d3cf931bb49ea39':'65a219aa6417bd83c650183a482fadf1',
+                    'ceddabf43547530aaa89bf142c1232ef':'fe11644181842e6f9a9ad2de58bfde97',
+                    '8c130421c6c35f6db711ca63ac1580be':'69e022f4b1bb6ef4154981fcb263a42a'
+                }
+            },
+            edge: {
+                url: "//otte.live.fly.ww.aiv-cdn.net/iad-nitro/live/clients/dash-sd/enc/hqpwskclwy/out/v1/b852d8a3e9ed46a2880124dbbda383d4/cenc-sd.mpd",
+                clearkey: {
+                    'b4b46f73f8b72c198b5dd8d7413b5a39':'706b902ddb29aed7f241185ba8b58b37',
+                }
+            },
+        };
+
+        // Função para ler o parâmetro da URL
+        function getParam(name) {
+            const url = new URL(window.location.href);
+            return url.searchParams.get(name);
+        }
+
+        const id = getParam('id');
+        const config = canais[id];
+
+        if (!config) {
+            document.getElementById('player').innerHTML = `
+                <h2 style="color:white; text-align:center; margin-top:20%;">Canal inválido ou não encontrado.</h2>
+            `;
+        } else {
+            const player = new Clappr.Player({
+                source: config.url,
+                mimeType: 'application/dash+xml',
+                autoPlay: false,
+                preload: 'auto',
+                parentId: '#player',
+                width: '100%',
+                height: '100%',
+                mediacontrol: { seekbar: "#2cd7ca", buttons: "#e3f509" },
+                plugins: [
+                    DashShakaPlayback,
+                    ClapprPip.PipButton,
+                    ClapprPip.PipPlugin,
+                    LevelSelector
+                ],
+                shakaConfiguration: {
+                    drm: {
+                        clearKeys: config.clearkey
+                    },
+                    manifest: {
+                        defaultPresentationDelay: 2
+                    },
+                },
+                shakaOnBeforeLoad: function (shaka_player) {
+                    shaka_player.selectAudioLanguage('es-MX');
+                    shaka_player.addEventListener('error', function (event) {
+                        console.error('Erro do Shaka Player:', event.detail);
+                    });
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
